@@ -23,28 +23,45 @@ import {
   bookingSteps,
   comfort,
   contacts,
+  faq,
+  faqTitle,
   formSuccess,
   hero,
   prices,
   reviews,
   services,
   trips,
+  tripsIntro,
   unscripted,
 } from "./data/content";
+import { trackGoal } from "./analytics";
+import { jsonLdSchemas } from "./seo";
 
 const serviceIcons = [Navigation, Mountain, Route, CarFront, Compass];
 const comfortIcons = [Users, Sparkles, ShieldCheck, CarFront, Clock3, Route, CalendarDays];
+
+function SeoJsonLd() {
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdSchemas) }}
+    />
+  );
+}
 
 function App() {
   const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    trackGoal("submit_form");
     setSubmitted(true);
   };
 
   return (
-    <main>
+    <>
+      <SeoJsonLd />
+      <main>
       <section className="hero" style={{ backgroundImage: `url(${hero.image})` }}>
         <div className="hero__shade" />
         <nav className="nav" aria-label="Главная навигация">
@@ -61,17 +78,29 @@ function App() {
         <div className="hero__content">
           <p className="eyebrow">
             <MapPin size={18} />
-            Верхний Фиагдон / Северная Осетия
+            Старт из Владикавказа / Северная Осетия
           </p>
           <h1>{hero.title}</h1>
           <p className="hero__subtitle">{hero.subtitle}</p>
 
           <div className="actions" aria-label="Связаться с Эльбрусом">
-            <a className="button button--primary" href={contacts.whatsappHref} target="_blank" rel="noreferrer">
+            <a
+              className="button button--primary"
+              href={contacts.whatsappHref}
+              target="_blank"
+              rel="noreferrer"
+              onClick={() => trackGoal("click_whatsapp")}
+            >
               <MessageCircle size={20} />
               Написать в WhatsApp
             </a>
-            <a className="button button--secondary" href={contacts.telegramHref} target="_blank" rel="noreferrer">
+            <a
+              className="button button--secondary"
+              href={contacts.telegramHref}
+              target="_blank"
+              rel="noreferrer"
+              onClick={() => trackGoal("click_telegram")}
+            >
               <Send size={20} />
               Написать в Telegram
             </a>
@@ -85,7 +114,7 @@ function App() {
         </div>
 
         <div className="route-map" aria-hidden="true">
-          <span className="route-map__label">Vladikavkaz → mountains</span>
+          <span className="route-map__label">Владикавказ → горы</span>
           <svg viewBox="0 0 440 220">
             <path
               d="M22 166 C 82 74, 137 195, 202 112 S 310 42, 404 78"
@@ -140,7 +169,7 @@ function App() {
       <section className="section section--services">
         <div className="section__header">
           <p className="section-kicker">Форматы</p>
-          <h2>Что можно сделать с Эльбрусом</h2>
+          <h2>Экскурсии, поездки в горы и трансферы из Владикавказа</h2>
         </div>
         <div className="service-grid">
           {services.map((service, index) => {
@@ -159,15 +188,13 @@ function App() {
       <section className="section section--trips" id="trips">
         <div className="section__header section__header--wide">
           <p className="section-kicker">Маршрутный блокнот</p>
-          <h2>Примеры поездок</h2>
-          <p>
-            Не галопом по точкам, а нормальная дорога: с остановками, светом, разговорами и временем просто посмотреть на горы.
-          </p>
+          <h2>Популярные маршруты по Северной Осетии</h2>
+          <p>{tripsIntro}</p>
         </div>
         <div className="trip-grid">
           {trips.map((trip) => (
             <article className="trip-card" key={trip.title}>
-              <img src={trip.image} alt={trip.title} loading="lazy" />
+              <img src={trip.image} alt={trip.imageAlt} loading="lazy" />
               <div className="trip-card__body">
                 <span className="note-label">{trip.note}</span>
                 <h3>{trip.title}</h3>
@@ -287,20 +314,47 @@ function App() {
         </div>
       </section>
 
+      <section className="section section--faq" id="faq">
+        <div className="section__header section__header--wide">
+          <p className="section-kicker">Вопросы перед поездкой</p>
+          <h2>{faqTitle}</h2>
+        </div>
+        <div className="faq-list">
+          {faq.map((item) => (
+            <article className="faq-item" key={item.question}>
+              <h3>{item.question}</h3>
+              <p>{item.answer}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
       <section className="section section--contacts" id="contacts">
         <div className="contact-copy">
           <p className="section-kicker">Контакты</p>
-          <h2>Напишите, когда приезжаете и какой день хотите собрать</h2>
+          <h2>Напишите Эльбрусу, когда приезжаете во Владикавказ и что хотите увидеть</h2>
           <div className="actions actions--dark">
-            <a className="button button--primary" href={contacts.whatsappHref} target="_blank" rel="noreferrer">
+            <a
+              className="button button--primary"
+              href={contacts.whatsappHref}
+              target="_blank"
+              rel="noreferrer"
+              onClick={() => trackGoal("click_whatsapp")}
+            >
               <MessageCircle size={20} />
               WhatsApp
             </a>
-            <a className="button button--secondary" href={contacts.telegramHref} target="_blank" rel="noreferrer">
+            <a
+              className="button button--secondary"
+              href={contacts.telegramHref}
+              target="_blank"
+              rel="noreferrer"
+              onClick={() => trackGoal("click_telegram")}
+            >
               <Send size={20} />
               Telegram
             </a>
-            <a className="button button--ghost" href={contacts.phoneHref}>
+            <a className="button button--ghost" href={contacts.phoneHref} onClick={() => trackGoal("click_phone")}>
               <Phone size={20} />
               {contacts.phoneLabel}
             </a>
@@ -342,7 +396,8 @@ function App() {
           )}
         </form>
       </section>
-    </main>
+      </main>
+    </>
   );
 }
 

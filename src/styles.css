@@ -446,7 +446,8 @@ p {
 .trip-grid,
 .price-grid,
 .review-grid,
-.steps-grid {
+.steps-grid,
+.faq-list {
   display: grid;
   width: min(1180px, 100%);
   margin: 42px auto 0;
@@ -461,7 +462,8 @@ p {
 .trip-card,
 .price-card,
 .review-card,
-.step-card {
+.step-card,
+.faq-item {
   border: 1px solid rgba(32, 56, 73, 0.14);
   border-radius: 8px;
   background: rgba(255, 249, 238, 0.82);
@@ -475,7 +477,8 @@ p {
 .service-card:hover,
 .trip-card:hover,
 .price-card:hover,
-.review-card:hover {
+.review-card:hover,
+.faq-item:hover {
   transform: translateY(-4px);
   border-color: rgba(180, 88, 61, 0.34);
   box-shadow: 0 24px 70px rgba(32, 56, 73, 0.13);
@@ -745,6 +748,23 @@ p {
   font-weight: 900;
 }
 
+.faq-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.faq-item {
+  padding: 24px;
+}
+
+.faq-item h3 {
+  font-size: 20px;
+}
+
+.faq-item p {
+  margin: 12px 0 0;
+  color: #53605e;
+}
+
 .section--contacts {
   display: grid;
   grid-template-columns: minmax(0, 0.9fr) minmax(320px, 1.1fr);
@@ -849,7 +869,8 @@ p {
   .service-grid,
   .trip-grid,
   .price-grid,
-  .review-grid {
+  .review-grid,
+  .faq-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -936,6 +957,7 @@ p {
   .price-grid,
   .review-grid,
   .steps-grid,
+  .faq-list,
   .request-form {
     grid-template-columns: 1fr;
   }
