@@ -1,14 +1,15 @@
 import { faq } from "./data/content";
 
 const siteUrl = "https://alania.fun/";
-const serviceName = "Индивидуальные экскурсии по Северной Осетии из Владикавказа";
+const serviceName = "Индивидуальная поездка по горной Осетии";
 
 const serviceSchema = {
   "@context": "https://schema.org",
   "@type": "Service",
+  "@id": `${siteUrl}#service`,
   name: serviceName,
   description:
-    "Поездки по Северной Осетии с местным водителем: Фиагдон, Даргавс, Кармадон, горы, трансферы и индивидуальные маршруты до 4 человек.",
+    "Индивидуальная поездка по Северной Осетии с местным водителем: горы, ущелья, древние селения, видовые остановки и спокойный маршрут без автобуса и туристической гонки.",
   areaServed: [
     "Республика Северная Осетия — Алания",
     "Владикавказ",
@@ -19,10 +20,10 @@ const serviceSchema = {
     "Минеральные Воды",
   ],
   serviceType: [
-    "Индивидуальные экскурсии",
+    "Индивидуальные поездки",
+    "Экскурсии по Северной Осетии",
     "Поездки в горы",
     "Трансферы",
-    "Маршруты по Северной Осетии",
   ],
   provider: {
     "@type": "Person",
@@ -35,6 +36,7 @@ const serviceSchema = {
 const faqSchema = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
+  "@id": `${siteUrl}#faq`,
   mainEntity: faq.map((item) => ({
     "@type": "Question",
     name: item.question,
@@ -48,11 +50,12 @@ const faqSchema = {
 const breadcrumbSchema = {
   "@context": "https://schema.org",
   "@type": "BreadcrumbList",
+  "@id": `${siteUrl}#breadcrumb`,
   itemListElement: [
     {
       "@type": "ListItem",
       position: 1,
-      name: serviceName,
+      name: "alania.fun — поездки по горной Осетии",
       item: siteUrl,
     },
   ],
