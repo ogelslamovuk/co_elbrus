@@ -38,9 +38,16 @@ import { trackGoal } from "./analytics";
 
 const serviceIcons = [Navigation, Mountain, Route, CarFront, Compass];
 const comfortIcons = [Users, Sparkles, ShieldCheck, CarFront, Clock3, Route, CalendarDays];
+const toWebp = (src: string) => src.replace(/\.jpg$/, ".webp");
+const toMobileHeroWebp = (src: string) => src.replace(/\.jpg$/, "-1280.webp");
 
 function App() {
   const [submitted, setSubmitted] = useState(false);
+  const heroStyle = {
+    "--hero-image": `url("${hero.image}")`,
+    "--hero-image-modern": `image-set(url("${toWebp(hero.image)}") type("image/webp"), url("${hero.image}") type("image/jpeg"))`,
+    "--hero-image-mobile": `image-set(url("${toMobileHeroWebp(hero.image)}") type("image/webp"), url("${hero.image}") type("image/jpeg"))`,
+  } as React.CSSProperties;
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -50,7 +57,7 @@ function App() {
 
   return (
     <main>
-      <section className="hero" style={{ backgroundImage: `url(${hero.image})` }}>
+      <section className="hero" style={heroStyle}>
         <div className="hero__shade" />
         <nav className="nav" aria-label="Главная навигация">
           <a href="#about" className="nav__brand">
@@ -76,7 +83,7 @@ function App() {
               className="button button--primary"
               href={contacts.whatsappHref}
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               onClick={() => trackGoal("click_whatsapp")}
             >
               <MessageCircle size={20} />
@@ -86,7 +93,7 @@ function App() {
               className="button button--secondary"
               href={contacts.telegramHref}
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               onClick={() => trackGoal("click_telegram")}
             >
               <Send size={20} />
@@ -143,11 +150,22 @@ function App() {
 
           <div className="portrait-stack" aria-label="Фотографии Эльбруса">
             <figure className="portrait-card portrait-card--front">
-              <img src={about.portraits[0]} alt="Эльбрус, местный водитель и проводник по Осетии" />
+              <picture>
+                <source srcSet={toWebp(about.portraits[0])} type="image/webp" />
+                <img
+                  src={about.portraits[0]}
+                  alt="Эльбрус, местный водитель и проводник по Осетии"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </picture>
               <figcaption>местный / Верхний Фиагдон</figcaption>
             </figure>
             <figure className="portrait-card portrait-card--back">
-              <img src={about.portraits[1]} alt="Эльбрус в поездке по Северной Осетии" />
+              <picture>
+                <source srcSet={toWebp(about.portraits[1])} type="image/webp" />
+                <img src={about.portraits[1]} alt="Эльбрус в поездке по Северной Осетии" loading="lazy" decoding="async" />
+              </picture>
               <figcaption>свой человек в Осетии</figcaption>
             </figure>
           </div>
@@ -182,7 +200,10 @@ function App() {
         <div className="trip-grid">
           {trips.map((trip) => (
             <article className="trip-card" key={trip.title}>
-              <img src={trip.image} alt={trip.imageAlt} loading="lazy" />
+              <picture>
+                <source srcSet={toWebp(trip.image)} type="image/webp" />
+                <img src={trip.image} alt={trip.imageAlt} loading="lazy" decoding="async" />
+              </picture>
               <div className="trip-card__body">
                 <span className="note-label">{trip.note}</span>
                 <h3>{trip.title}</h3>
@@ -326,7 +347,7 @@ function App() {
               className="button button--primary"
               href={contacts.whatsappHref}
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               onClick={() => trackGoal("click_whatsapp")}
             >
               <MessageCircle size={20} />
@@ -336,7 +357,7 @@ function App() {
               className="button button--secondary"
               href={contacts.telegramHref}
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               onClick={() => trackGoal("click_telegram")}
             >
               <Send size={20} />
@@ -355,7 +376,7 @@ function App() {
         <form className="request-form" onSubmit={handleSubmit}>
           <label>
             Имя
-            <input name="name" type="text" placeholder="Как к вам обращаться" required />
+            <input name="name" type="text" placeholder="Как к вам обращаться" autoComplete="name" required />
           </label>
           <label>
             Телефон или мессенджер
