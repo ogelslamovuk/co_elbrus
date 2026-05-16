@@ -33,6 +33,40 @@ base: "/co_elbrus/"
 
 `Settings → Pages → Source → GitHub Actions`
 
+## Заявки из формы в Telegram
+
+Форма на сайте отправляет заявку на endpoint из переменной сборки:
+
+```bash
+VITE_LEAD_ENDPOINT
+```
+
+Токен Telegram-бота нельзя хранить в frontend или в публичном репозитории. Для отправки заявок добавлен пример Cloudflare Worker:
+
+```text
+scripts/cloudflare-telegram-worker.js
+```
+
+Worker принимает заявку с сайта и отправляет сообщение в Telegram через Bot API. Креды хранятся только в секретах Cloudflare Worker:
+
+- `TELEGRAM_BOT_TOKEN` — токен бота от BotFather;
+- `TELEGRAM_CHAT_ID` — ID чата, куда приходят заявки;
+- `ALLOWED_ORIGIN` — домен сайта, например `https://ogelslamovuk.github.io` или будущий домен.
+
+После публикации Worker нужно добавить URL Worker в GitHub Actions variable:
+
+`Settings → Secrets and variables → Actions → Variables → New repository variable`
+
+Имя:
+
+```text
+VITE_LEAD_ENDPOINT
+```
+
+Значение: URL опубликованного Worker.
+
+После этого нужно запустить деплой заново или сделать push в `main`.
+
 ## Где редактировать контент
 
 Основной редактируемый контент лежит в `src/data/content.ts`.
@@ -46,8 +80,6 @@ base: "/co_elbrus/"
 - общие ориентиры по стоимости: `prices`;
 - отзывы: `reviews`;
 - шаги бронирования: `bookingSteps`.
-
-Контакты сейчас заведены как заменяемые значения-заглушки, потому что реальные номер WhatsApp, Telegram и телефон не были переданы в исходной задаче.
 
 ## Изображения
 
