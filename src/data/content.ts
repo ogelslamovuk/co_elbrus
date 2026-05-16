@@ -1,11 +1,11 @@
 const image = (name: string) => `${import.meta.env.BASE_URL}images/${name}`;
+const contactMessage = encodeURIComponent("Эльбрус, здравствуйте. Хочу поехать по Осетии.");
 
 export const contacts = {
   phoneLabel: "+7 (919) 423-75-17",
   phoneHref: "tel:+79194237517",
-  whatsappHref:
-    "https://wa.me/79194237517?text=%D0%AD%D0%BB%D1%8C%D0%B1%D1%80%D1%83%D1%81%2C%20%D0%B7%D0%B4%D1%80%D0%B0%D0%B2%D1%81%D1%82%D0%B2%D1%83%D0%B9%D1%82%D0%B5.%20%D0%A5%D0%BE%D1%87%D1%83%20%D0%BF%D0%BE%D0%B5%D1%85%D0%B0%D1%82%D1%8C%20%D0%BF%D0%BE%20%D0%9E%D1%81%D0%B5%D1%82%D0%B8%D0%B8.",
-  telegramHref: "https://t.me/elbrus_ossetia",
+  whatsappHref: `https://wa.me/79194237517?text=${contactMessage}`,
+  telegramHref: `tg://msg?to=%2B79194237517&text=${contactMessage}`,
 };
 
 export const hero = {
