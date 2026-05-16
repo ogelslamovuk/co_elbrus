@@ -5,7 +5,7 @@ export const contacts = {
   phoneLabel: "+7 (919) 423-75-17",
   phoneHref: "tel:+79194237517",
   whatsappHref: `https://wa.me/79194237517?text=${contactMessage}`,
-  telegramHref: `tg://msg?to=%2B79194237517&text=${contactMessage}`,
+  telegramHref: `https://t.me/share/url?url=&text=${contactMessage}`,
 };
 
 export const hero = {
