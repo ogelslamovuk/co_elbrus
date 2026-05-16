@@ -35,19 +35,9 @@ import {
   unscripted,
 } from "./data/content";
 import { trackGoal } from "./analytics";
-import { jsonLdSchemas } from "./seo";
 
 const serviceIcons = [Navigation, Mountain, Route, CarFront, Compass];
 const comfortIcons = [Users, Sparkles, ShieldCheck, CarFront, Clock3, Route, CalendarDays];
-
-function SeoJsonLd() {
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdSchemas) }}
-    />
-  );
-}
 
 function App() {
   const [submitted, setSubmitted] = useState(false);
@@ -59,9 +49,7 @@ function App() {
   };
 
   return (
-    <>
-      <SeoJsonLd />
-      <main>
+    <main>
       <section className="hero" style={{ backgroundImage: `url(${hero.image})` }}>
         <div className="hero__shade" />
         <nav className="nav" aria-label="Главная навигация">
@@ -396,8 +384,7 @@ function App() {
           )}
         </form>
       </section>
-      </main>
-    </>
+    </main>
   );
 }
 
