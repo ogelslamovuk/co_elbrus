@@ -41,18 +41,68 @@ const comfortIcons = [Users, Sparkles, ShieldCheck, CarFront, Clock3, Route, Cal
 const toWebp = (src: string) => src.replace(/\.jpg$/, ".webp");
 const toMobileHeroWebp = (src: string) => src.replace(/\.jpg$/, "-1280.webp");
 
+type RequestStatus = "idle" | "sending" | "success" | "error";
+
+const formValue = (formData: FormData, key: string) => String(formData.get(key) ?? "").trim();
+
 function App() {
-  const [submitted, setSubmitted] = useState(false);
+  const [requestStatus, setRequestStatus] = useState<RequestStatus>("idle");
+  const [requestMessage, setRequestMessage] = useState("");
+  const leadEndpoint = import.meta.env.VITE_LEAD_ENDPOINT?.trim();
   const heroStyle = {
     "--hero-image": `url("${hero.image}")`,
     "--hero-image-modern": `image-set(url("${toWebp(hero.image)}") type("image/webp"), url("${hero.image}") type("image/jpeg"))`,
     "--hero-image-mobile": `image-set(url("${toMobileHeroWebp(hero.image)}") type("image/webp"), url("${hero.image}") type("image/jpeg"))`,
   } as React.CSSProperties;
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     trackGoal("submit_form");
-    setSubmitted(true);
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const payload = {
+      name: formValue(formData, "name"),
+      contact: formValue(formData, "contact"),
+      date: formValue(formData, "date"),
+      guests: formValue(formData, "guests"),
+      message: formValue(formData, "message"),
+      source: "co_elbrus_landing",
+      page: window.location.href,
+    };
+
+    if (!leadEndpoint) {
+      setRequestStatus("error");
+      setRequestMessage(
+        "Форма почти готова, но канал отправки ещё не подключён. Напишите Эльбрусу напрямую в WhatsApp или Telegram."
+      );
+      return;
+    }
+
+    setRequestStatus("sending");
+    setRequestMessage("");
+
+    try {
+      const response = await fetch(leadEndpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Lead endpoint failed with status ${response.status}`);
+      }
+
+      setRequestStatus("success");
+      setRequestMessage(formSuccess);
+      form.reset();
+    } catch (error) {
+      console.error(error);
+      setRequestStatus("error");
+      setRequestMessage("Не получилось отправить заявку. Напишите Эльбрусу напрямую в WhatsApp или Telegram.");
+    }
   };
 
   return (
@@ -394,13 +444,16 @@ function App() {
             Что хочется посмотреть
             <textarea name="message" rows={5} placeholder="Горы, Фиагдон, Даргавс, рассвет, спокойный день..." />
           </label>
-          <button className="button button--primary request-form__wide" type="submit">
+          <button className="button button--primary request-form__wide" type="submit" disabled={requestStatus === "sending"}>
             <ArrowRight size={20} />
-            Отправить заявку
+            {requestStatus === "sending" ? "Отправляем..." : "Отправить заявку"}
           </button>
-          {submitted && (
-            <p className="form-success request-form__wide" role="status">
-              {formSuccess}
+          {requestMessage && (
+            <p
+              className={`form-success request-form__wide${requestStatus === "error" ? " form-success--error" : ""}`}
+              role="status"
+            >
+              {requestMessage}
             </p>
           )}
         </form>
