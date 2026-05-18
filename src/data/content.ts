@@ -1,4 +1,4 @@
-const image = (name: string) => `${import.meta.env.BASE_URL}images/${name}`;
+const image = (name: string) => `/images/${name}`;
 const contactMessage = encodeURIComponent("Эльбрус, здравствуйте. Хочу поехать по Осетии.");
 
 export const contacts = {
