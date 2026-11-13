@@ -1,97 +1,50 @@
 # Эльбрус — водитель и проводник по Северной Осетии
 
-Одностраничный landing page для Эльбруса: местного водителя и личного проводника по Северной Осетии-Алании. Сайт собран как современный travel landing с визуальной идеей Mountain Road Trip Notebook.
+Одностраничный сайт Эльбруса, местного водителя и проводника по Северной Осетии-Алании. Визуальная концепция — Mountain Road Trip Notebook.
 
-Опубликованный адрес:
+Адрес сайта — [alania.fun](https://alania.fun/).
 
-https://ogelslamovuk.github.io/co_elbrus/
+## Локальный запуск и сборка
 
-## Локальный запуск
+Используй Node.js 24, как в GitHub Actions.
 
 ```bash
-npm install
+npm ci
 npm run dev
-```
-
-## Production build
-
-```bash
 npm run build
+npm run preview
+npm run smoke -- http://localhost:4173/
 ```
 
-Vite настроен с обязательным base path:
+Сборка генерирует HTML и JSON-LD из компонентов и данных React. В браузере React подключает интерактивность к готовой странице. При отключённом JavaScript доступны контент, телефон и WhatsApp. Vite использует `base: "./"`. GitHub Pages публикует `dist` в корне `alania.fun`.
 
-```ts
-base: "/co_elbrus/"
-```
+## Деплой и откат
 
-## Deploy
+GitHub Pages публикует сайт через `.github/workflows/pages.yml` после изменений в `master`. Pull request в `master` проверяет сборку. Для повторной публикации запусти **Deploy GitHub Pages** из ветки `master`. Сверь SHA в Actions и запусти `npm run smoke` для проверки публичного адреса.
 
-Деплой настроен через GitHub Actions: `.github/workflows/pages.yml`.
+Для отката создай PR с отменой проблемного коммита в `master`, дождись деплоя и снова запусти smoke. При полном откате восстановления сохрани триггер workflow на `master`, чтобы отмена опубликовалась. Предыдущий артефакт был собран из `5db270f063480d364776c695f8a0eb52079a0374` в [Actions run 26033342652](https://github.com/ogelslamovuk/co_elbrus/actions/runs/26033342652).
 
-После push в `main` workflow собирает `dist` и публикует его в GitHub Pages. Если Pages в настройках репозитория ещё не переключён на GitHub Actions, нужно один раз открыть:
+## DNS и HTTPS
 
-`Settings → Pages → Source → GitHub Actions`
+Если RDAP показывает `*.verification-hold.suspended-domain.com`, подтверди зарегистрированный контактный email у провайдера домена. После возврата исходных NS сверь A/AAAA для корня и CNAME для `www` с инструкцией GitHub. Сохрани почтовые записи и записи верификации. Оставь **Enforce HTTPS** включённым в Pages. При корректном DNS GitHub Pages выпускает и автоматически продлевает бесплатный сертификат Let's Encrypt. Команда `npm run smoke` проверяет доверенный HTTPS и редиректы с HTTP и `www` на канонический адрес. [Настройка домена в GitHub Pages](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site).
 
-## Заявки из формы в Telegram
+## Форма заявки
 
-Форма на сайте отправляет заявку на endpoint из переменной сборки:
+GitHub Actions передаёт в сборку публичную переменную репозитория `VITE_LEAD_ENDPOINT`. Для разработки скопируй `.env.example` в `.env.local` и используй тестовый или перехваченный endpoint. Форма подтверждает отправку после ответа HTTP 2xx с JSON `{"ok":true}`. Без endpoint форма открывает черновик в WhatsApp, который отправляет сам посетитель.
 
-```bash
-VITE_LEAD_ENDPOINT
-```
-
-Токен Telegram-бота нельзя хранить в frontend или в публичном репозитории. Для отправки заявок добавлен пример Cloudflare Worker:
-
-```text
-scripts/cloudflare-telegram-worker.js
-```
-
-Worker принимает заявку с сайта и отправляет сообщение в Telegram через Bot API. Креды хранятся только в секретах Cloudflare Worker:
-
-- `TELEGRAM_BOT_TOKEN` — токен бота от BotFather;
-- `TELEGRAM_CHAT_ID` — ID чата, куда приходят заявки;
-- `ALLOWED_ORIGIN` — домен сайта, например `https://ogelslamovuk.github.io` или будущий домен.
-
-После публикации Worker нужно добавить URL Worker в GitHub Actions variable:
-
-`Settings → Secrets and variables → Actions → Variables → New repository variable`
-
-Имя:
-
-```text
-VITE_LEAD_ENDPOINT
-```
-
-Значение: URL опубликованного Worker.
-
-После этого нужно запустить деплой заново или сделать push в `main`.
+Код действующего Cloudflare Worker находится в `scripts/cloudflare-telegram-worker.js`. Worker публикуется отдельно от GitHub Pages через существующий аккаунт Cloudflare. Храни `TELEGRAM_BOT_TOKEN` и `TELEGRAM_CHAT_ID` в секретах Worker. Для `ALLOWED_ORIGIN` используй `https://alania.fun`. Проверяй CORS запросом OPTIONS, а контракт доставки тестируй с имитацией ответа Telegram.
 
 ## Где редактировать контент
 
-Основной редактируемый контент лежит в `src/data/content.ts`.
+В `src/data/content.ts` меняются:
 
-В этом файле меняются:
+- телефон и WhatsApp — `phoneNumber`, `contacts.phoneLabel`;
+- первый экран, информация об Эльбрусе и поездке — `hero`, `about`, `unscripted`, `comfort`;
+- услуги, маршруты и цены — `services`, `trips`, `prices`;
+- отзывы, шаги бронирования и ответы на вопросы — `reviews`, `bookingSteps`, `faq`.
 
-- телефон, WhatsApp и Telegram: `contacts`;
-- hero, тексты и CTA: `hero`, `about`, `unscripted`, `comfort`;
-- услуги: `services`;
-- маршруты и цены в карточках поездок: `trips`;
-- общие ориентиры по стоимости: `prices`;
-- отзывы: `reviews`;
-- шаги бронирования: `bookingSteps`.
+В `trips[].price` и `prices.items` указывай согласованную с Эльбрусом стоимость. Старые рыночные оценки хранятся в `pricing-notes.md`.
 
 ## Изображения
 
-Изображения лежат в `public/images`.
-
-- `elbrus-portrait-1.jpg`, `elbrus-portrait-2.jpg` — локальные фото Эльбруса из проекта;
-- остальные изображения — пейзажи Северной Осетии с Wikimedia Commons.
-
-Источники и лицензии указаны в `image-credits.md`.
-
-## Цены
-
-Ориентиры по стоимости редактируются в `src/data/content.ts`.
-
-Логика и источники для стартовых значений указаны в `pricing-notes.md`. Финальные цены должен подтвердить Эльбрус перед активным продвижением сайта.
+Файлы для сайта лежат в `public/images`. При замене снимка обнови в `src/data/content.ts` его пути, фактические размеры JPEG и альтернативный текст. Для первого экрана используются AVIF для мобильного и широкого экрана, WebP и JPEG. Источники и лицензии указаны в `image-credits.md`.

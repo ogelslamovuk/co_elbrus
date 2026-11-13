@@ -7,6 +7,8 @@
 
 Пейзажи Северной Осетии:
 
+WebP, AVIF и уменьшенные JPEG сделаны из тех же фотографий. Для карточки «Маршрут “как для своих”» используется фотография долины Даргавса.
+
 - `public/images/fiagdon-river.jpg` — North Ossetia-Alania. Kurtat Valley. Fiagdon River. Автор: Alexxx1979. Источник: https://commons.wikimedia.org/wiki/File:North_Ossetia%E2%80%93Alania._Kurtat_Valley._Fiagdon_River_PA160654_2575.jpg. Лицензия: CC BY-SA 4.0.
 - `public/images/verkhny-fiagdon.jpg` — Verkhny Fiagdon, Northern Osetia, Russia. Автор: Акутагава. Источник: https://commons.wikimedia.org/wiki/File:Verkhny_Fiagdon_2010.JPG. Лицензия: CC BY-SA 3.0.
 - `public/images/dargavs-city.jpg` — North Ossetia-Alania. Dargavs' City of the Dead. Автор: Alexxx1979. Источник: https://commons.wikimedia.org/wiki/File:North_Ossetia%E2%80%93Alania._Dargavs%27_City_of_the_Dead_PA160502_2400.jpg. Лицензия: CC BY-SA 4.0.
