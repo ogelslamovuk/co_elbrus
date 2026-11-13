@@ -4,7 +4,7 @@
 
 Repository: https://github.com/ogelslamovuk/co_elbrus
 Local path: D:\JetBrains\co_elbrus
-Target public URL: https://ogelslamovuk.github.io/co_elbrus/
+Target public URL: https://alania.fun/
 
 This repository is for a single-page landing site for Elbrus: a local driver and personal guide in North Ossetia–Alania.
 
@@ -16,13 +16,13 @@ The task is not complete until:
 - the site builds successfully;
 - the site is pushed to GitHub;
 - GitHub Pages deployment is configured;
-- the published page opens at https://ogelslamovuk.github.io/co_elbrus/;
+- the published page opens at https://alania.fun/;
 - README explains how to run, build, deploy, and edit content.
 
 For Vite, use:
 
 ```ts
-base: "/co_elbrus/"
+base: "./"
 ```
 
 Do not use `/main` in the public URL.
@@ -492,14 +492,10 @@ Forbidden:
 The final published site must open here:
 
 ```text
-https://ogelslamovuk.github.io/co_elbrus/
+https://alania.fun/
 ```
 
-Use either:
-- GitHub Actions deployment, or
-- `gh-pages` package with deploy script.
-
-Choose the most reliable option for this repository.
+Deploy through the existing GitHub Actions workflow on `master`. GitHub Pages serves `alania.fun` and manages its HTTPS certificate.
 
 The final task is not complete until deployment is attempted and verified.
 

@@ -1,24 +1,41 @@
-const image = (name: string) => `/images/${name}`;
-const contactMessage = encodeURIComponent("Эльбрус, здравствуйте. Хочу поехать по Осетии.");
+export const siteUrl = "https://alania.fun/";
+
+function image(name: string, width: number, height: number) {
+  return {
+    jpg: `./images/${name}.jpg`,
+    webp: `./images/${name}.webp`,
+    width,
+    height,
+  };
+}
+const phoneNumber = "+79194237517";
+
+export function whatsappLink(message: string) {
+  return `https://wa.me/${phoneNumber.slice(1)}?text=${encodeURIComponent(message)}`;
+}
 
 export const contacts = {
   phoneLabel: "+7 (919) 423-75-17",
-  phoneHref: "tel:+79194237517",
-  whatsappHref: `https://wa.me/79194237517?text=${contactMessage}`,
-  telegramHref: "https://t.me/+79194237517",
+  phoneHref: `tel:${phoneNumber}`,
+  whatsappHref: whatsappLink("Эльбрус, здравствуйте. Хочу поехать по Осетии."),
 };
+
+const priceOnRequest = "по договорённости";
 
 export const hero = {
   title: "Индивидуальные экскурсии по Северной Осетии из Владикавказа",
   subtitle:
     "Поездки в горы, Фиагдон, Даргавс и Кармадон с местным водителем. Без автобуса, группы и туристической гонки — маршрут можно собрать под день, погоду и настроение.",
-  image: image("fiagdon-river.jpg"),
+  image: image("fiagdon-river", 1920, 1280),
+  avif: "./images/fiagdon-river.avif",
+  mobileAvif: "./images/fiagdon-river-1024.avif",
+  mobileWebp: "./images/fiagdon-river-1280.webp",
   badges: [
     "Старт из Владикавказа",
     "До 4 гостей",
     "Фиагдон, Даргавс, Кармадон",
     "Маршруты на полдня, день и 2 дня",
-    "WhatsApp и Telegram",
+    "WhatsApp и телефон",
   ],
 };
 
@@ -36,7 +53,7 @@ export const about = {
     "возит аккуратно и спокойно",
     "может встретить, подождать, сопроводить и вернуть обратно",
   ],
-  portraits: [image("elbrus-portrait-1.jpg"), image("elbrus-portrait-2.jpg")],
+  portraits: [image("elbrus-portrait-1", 720, 960), image("elbrus-portrait-2", 720, 960)],
 };
 
 export const services = [
@@ -70,8 +87,8 @@ export const trips = [
     title: "Фиагдон без спешки из Владикавказа",
     text: "Индивидуальная поездка по Северной Осетии: горные дороги, виды, остановки, местные истории и места, где хочется просто выйти и постоять.",
     format: "полдня / день",
-    price: "от 6 000 ₽",
-    image: image("verkhny-fiagdon.jpg"),
+    price: priceOnRequest,
+    image: image("verkhny-fiagdon", 960, 720),
     imageAlt: "Фиагдон в Северной Осетии на индивидуальном маршруте из Владикавказа",
     note: "сюда лучше утром",
   },
@@ -79,8 +96,8 @@ export const trips = [
     title: "Даргавс и Кармадон за один день",
     text: "Маршрут на день из Владикавказа через ущелья, горные виды и остановки по пути. Спокойный темп без автобуса и туристической гонки.",
     format: "день",
-    price: "от 12 000 ₽",
-    image: image("dargavs-city.jpg"),
+    price: priceOnRequest,
+    image: image("dargavs-city", 960, 640),
     imageAlt: "Даргавс и горы Северной Осетии в маршруте на день",
     note: "без туристической гонки",
   },
@@ -88,8 +105,8 @@ export const trips = [
     title: "Архонский перевал на рассвете",
     text: "Ранний выезд из Владикавказа ради света, тишины и гор. Поездка не ради галочки, а ради момента.",
     format: "раннее утро / полдня",
-    price: "от 7 000 ₽",
-    image: image("dargavs-valley.jpg"),
+    price: priceOnRequest,
+    image: image("dargavs-valley", 960, 640),
     imageAlt: "Горный маршрут по Северной Осетии на рассвете",
     note: "красивый свет",
   },
@@ -97,8 +114,8 @@ export const trips = [
     title: "Мидаграбинские водопады",
     text: "Маршрут по погоде и сезону для тех, кто хочет увидеть мощные горы, воду, простор и настоящую северокавказскую драму.",
     format: "день, по погоде и сезону",
-    price: "от 12 000 ₽",
-    image: image("karmadon-gorge.jpg"),
+    price: priceOnRequest,
+    image: image("karmadon-gorge", 960, 640),
     imageAlt: "Кармадонское ущелье и горы в маршруте по Осетии",
     note: "по погоде",
   },
@@ -106,8 +123,8 @@ export const trips = [
     title: "Мамисон и дальние горы",
     text: "Для тех, кто хочет уехать глубже, выше и тише. Подходит для длинной поездки по Северной Осетии и маршрута на 1–2 дня.",
     format: "день / два дня",
-    price: "от 16 000 ₽",
-    image: image("digoria-mountains.jpg"),
+    price: priceOnRequest,
+    image: image("digoria-mountains", 960, 640),
     imageAlt: "Мамисон и дальние горы Северной Осетии",
     note: "дальше и тише",
   },
@@ -115,8 +132,8 @@ export const trips = [
     title: "Трансфер Владикавказ — Минеральные Воды",
     text: "Дальняя поездка с нормальным водителем, чистой машиной и возможностью спокойно договориться по времени выезда и остановкам.",
     format: "межгород",
-    price: "от 5 000 ₽",
-    image: image("vladikavkaz-mountains.jpg"),
+    price: priceOnRequest,
+    image: image("vladikavkaz-mountains", 960, 894),
     imageAlt: "Дорога из Владикавказа к горам Северной Осетии",
     note: "межгород",
   },
@@ -124,9 +141,9 @@ export const trips = [
     title: "Маршрут “как для своих”",
     text: "Эльбрус собирает поездку под настроение: рассвет, горы, еда, видовые точки, тишина, фото, локальные места и спокойный темп.",
     format: "индивидуально",
-    price: "по договорённости",
-    image: image("alania-road.jpg"),
-    imageAlt: "Индивидуальный маршрут по Северной Осетии с местным водителем",
+    price: priceOnRequest,
+    image: image("dargavs-valley", 960, 640),
+    imageAlt: "Долина Даргавса в Северной Осетии",
     note: "знают местные",
   },
 ];
@@ -165,11 +182,11 @@ export const prices = {
   title: "Ориентиры по стоимости",
   text: "Стоимость зависит от маршрута, времени, ожидания, сезона и дальности поездки. Напишите Эльбрусу — он подскажет честный вариант и поможет собрать маршрут без лишней суеты.",
   items: [
-    ["Трансфер", "от 5 000 ₽"],
-    ["Поездка на полдня", "от 6 000 ₽"],
-    ["Поездка на день", "от 12 000 ₽"],
-    ["Дальняя поездка / 2 дня", "по договорённости"],
-    ["Индивидуальный маршрут", "по договорённости"],
+    ["Трансфер", priceOnRequest],
+    ["Поездка на полдня", priceOnRequest],
+    ["Поездка на день", priceOnRequest],
+    ["Дальняя поездка / 2 дня", priceOnRequest],
+    ["Индивидуальный маршрут", priceOnRequest],
   ],
   note: "Финальная цена зависит от маршрута, ожидания, сезона и количества остановок. Лучше уточнить напрямую перед поездкой.",
 };
@@ -195,7 +212,7 @@ export const reviews = [
 export const bookingSteps = [
   {
     title: "Напишите Эльбрусу",
-    text: "В WhatsApp или Telegram: когда приезжаете, сколько вас человек и что хотите увидеть.",
+    text: "В WhatsApp или по телефону: когда приезжаете, сколько вас человек и что хотите увидеть.",
   },
   {
     title: "Соберите маршрут",
@@ -240,7 +257,7 @@ export const faq = [
   {
     question: "Сколько стоит индивидуальная поездка по Северной Осетии?",
     answer:
-      "Стоимость зависит от маршрута, времени, ожидания, сезона и дальности поездки. На сайте указаны ориентиры “от”, а точную цену лучше уточнить в WhatsApp или Telegram.",
+      "Стоимость зависит от маршрута, времени, ожидания, сезона и дальности поездки. Точную цену можно уточнить в WhatsApp или по телефону.",
   },
   {
     question: "Можно ли заказать трансфер Владикавказ — Минеральные Воды?",
@@ -250,6 +267,6 @@ export const faq = [
   {
     question: "Как забронировать поездку?",
     answer:
-      "Напишите в WhatsApp или Telegram: даты поездки, сколько вас человек и что хочется увидеть. Эльбрус подскажет маршрут, время выезда и ориентир по стоимости.",
+      "Напишите в WhatsApp или позвоните. Сообщите даты поездки, сколько вас человек и что хочется увидеть. Эльбрус подскажет маршрут, время выезда и ориентир по стоимости.",
   },
 ];

@@ -21,6 +21,9 @@ export default {
     } catch {
       return jsonResponse({ ok: false, error: "Invalid JSON" }, 400, corsHeaders);
     }
+    if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+      return jsonResponse({ ok: false, error: "Invalid request" }, 400, corsHeaders);
+    }
 
     const text = buildTelegramText(payload);
     const token = env.TELEGRAM_BOT_TOKEN;
@@ -30,23 +33,26 @@ export default {
       return jsonResponse({ ok: false, error: "Telegram credentials are not configured" }, 500, corsHeaders);
     }
 
-    const telegramResponse = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text,
-        parse_mode: "HTML",
-        disable_web_page_preview: true,
-      }),
-    });
-
-    if (!telegramResponse.ok) {
-      const errorText = await telegramResponse.text();
-      return jsonResponse({ ok: false, error: errorText }, 502, corsHeaders);
+    try {
+      const telegramResponse = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text,
+          parse_mode: "HTML",
+          disable_web_page_preview: true,
+        }),
+        signal: AbortSignal.timeout(10_000),
+      });
+      if (telegramResponse.ok && (await telegramResponse.json())?.ok === true) {
+        return jsonResponse({ ok: true }, 200, corsHeaders);
+      }
+    } catch {
+      // Network failures and invalid Telegram replies produce the same public error.
     }
 
-    return jsonResponse({ ok: true }, 200, corsHeaders);
+    return jsonResponse({ ok: false, error: "Delivery could not be confirmed" }, 502, corsHeaders);
   },
 };
 

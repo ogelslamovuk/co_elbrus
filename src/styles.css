@@ -83,24 +83,20 @@ img {
   isolation: isolate;
   overflow: hidden;
   padding: 28px clamp(18px, 4vw, 64px) 72px;
-  background-image: var(--hero-image);
-  background-position: center 44%;
-  background-size: cover;
   color: #fff9ee;
 }
 
-@supports (background-image: image-set(url("/images/fiagdon-river.webp") type("image/webp"))) {
-  .hero {
-    background-image: var(--hero-image-modern);
-  }
+.hero__photo {
+  position: absolute;
+  inset: 0;
+  z-index: -3;
 }
 
-@media (max-width: 860px) {
-  @supports (background-image: image-set(url("/images/fiagdon-river-1280.webp") type("image/webp"))) {
-    .hero {
-      background-image: var(--hero-image-mobile);
-    }
-  }
+.hero__photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 44%;
 }
 
 .hero::after {
@@ -955,7 +951,10 @@ p {
   .hero {
     min-height: auto;
     padding: 18px clamp(16px, 5vw, 34px) 42px;
-    background-position: 58% top;
+  }
+
+  .hero__photo img {
+    object-position: 58% top;
   }
 
   .hero__shade {
@@ -1150,4 +1149,13 @@ p {
   .hero h1 {
     font-size: 23px;
   }
+}
+
+.form-success:empty {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
 }

@@ -1,4 +1,4 @@
-import { FormEvent, useState } from "react";
+import { type FormEvent, useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
   CalendarDays,
@@ -12,7 +12,6 @@ import {
   Navigation,
   Phone,
   Route,
-  Send,
   ShieldCheck,
   Sparkles,
   Users,
@@ -33,31 +32,39 @@ import {
   trips,
   tripsIntro,
   unscripted,
+  whatsappLink,
 } from "./data/content";
 import { trackGoal } from "./analytics";
 
 const serviceIcons = [Navigation, Mountain, Route, CarFront, Compass];
 const comfortIcons = [Users, Sparkles, ShieldCheck, CarFront, Clock3, Route, CalendarDays];
-const toWebp = (src: string) => src.replace(/\.jpg$/, ".webp");
-const toMobileHeroWebp = (src: string) => src.replace(/\.jpg$/, "-1280.webp");
+const leadEndpoint = import.meta.env.VITE_LEAD_ENDPOINT?.trim();
+const leadTimeoutMs = 12_000;
 
 type RequestStatus = "idle" | "sending" | "success" | "error";
 
 const formValue = (formData: FormData, key: string) => String(formData.get(key) ?? "").trim();
 
+function Photo({ image, alt }: { image: typeof hero.image; alt: string }) {
+  return (
+    <picture>
+      <source srcSet={image.webp} type="image/webp" />
+      <img src={image.jpg} width={image.width} height={image.height} alt={alt} loading="lazy" decoding="async" />
+    </picture>
+  );
+}
+
 function App() {
+  const [ready, setReady] = useState(false);
   const [requestStatus, setRequestStatus] = useState<RequestStatus>("idle");
   const [requestMessage, setRequestMessage] = useState("");
-  const leadEndpoint = import.meta.env.VITE_LEAD_ENDPOINT?.trim();
-  const heroStyle = {
-    "--hero-image": `url("${hero.image}")`,
-    "--hero-image-modern": `image-set(url("${toWebp(hero.image)}") type("image/webp"), url("${hero.image}") type("image/jpeg"))`,
-    "--hero-image-mobile": `image-set(url("${toMobileHeroWebp(hero.image)}") type("image/webp"), url("${hero.image}") type("image/jpeg"))`,
-  } as React.CSSProperties;
+  const sending = useRef(false);
+
+  useEffect(() => setReady(true), []);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    trackGoal("submit_form");
+    if (sending.current) return;
 
     const form = event.currentTarget;
     const formData = new FormData(form);
@@ -68,46 +75,67 @@ function App() {
       guests: formValue(formData, "guests"),
       message: formValue(formData, "message"),
       source: "co_elbrus_landing",
-      page: window.location.href,
+      page: window.location.origin + window.location.pathname,
     };
 
-    if (!leadEndpoint) {
+    if (!payload.name || !payload.contact) {
       setRequestStatus("error");
-      setRequestMessage(
-        "Форма почти готова, но канал отправки ещё не подключён. Напишите Эльбрусу напрямую в WhatsApp или Telegram."
-      );
+      setRequestMessage("Укажите имя и контакт для связи.");
       return;
     }
 
+    if (!leadEndpoint) {
+      setRequestStatus("idle");
+      setRequestMessage("");
+      const details = [
+        "Эльбрус, здравствуйте! Хочу обсудить поездку по Осетии.",
+        `Имя: ${payload.name}`,
+        `Контакт: ${payload.contact}`,
+        payload.date && `Дата: ${payload.date}`,
+        payload.guests && `Гостей: ${payload.guests}`,
+        payload.message && `Пожелания: ${payload.message}`,
+      ];
+      trackGoal("click_whatsapp");
+      window.open(whatsappLink(details.filter(Boolean).join("\n")), "_blank", "noopener,noreferrer");
+      return;
+    }
+
+    sending.current = true;
     setRequestStatus("sending");
     setRequestMessage("");
 
     try {
       const response = await fetch(leadEndpoint, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(leadTimeoutMs),
       });
-
-      if (!response.ok) {
-        throw new Error(`Lead endpoint failed with status ${response.status}`);
+      if (!response.ok || (await response.json())?.ok !== true) {
+        throw new Error("Unconfirmed lead delivery");
       }
-
       setRequestStatus("success");
       setRequestMessage(formSuccess);
       form.reset();
-    } catch (error) {
-      console.error(error);
+      trackGoal("submit_form");
+    } catch {
       setRequestStatus("error");
-      setRequestMessage("Не получилось отправить заявку. Напишите Эльбрусу напрямую в WhatsApp или Telegram.");
+      setRequestMessage("Не удалось подтвердить отправку. Напишите Эльбрусу в WhatsApp или позвоните ему.");
+    } finally {
+      sending.current = false;
     }
   };
 
   return (
     <main>
-      <section className="hero" style={heroStyle}>
+      <section className="hero">
+        <picture className="hero__photo">
+          <source media="(max-width: 860px)" type="image/avif" srcSet={hero.mobileAvif} />
+          <source type="image/avif" srcSet={hero.avif} />
+          <source media="(max-width: 860px)" type="image/webp" srcSet={hero.mobileWebp} />
+          <source type="image/webp" srcSet={hero.image.webp} />
+          <img src={hero.image.jpg} width={hero.image.width} height={hero.image.height} alt="" fetchPriority="high" />
+        </picture>
         <div className="hero__shade" />
         <nav className="nav" aria-label="Главная навигация">
           <a href="#about" className="nav__brand">
@@ -141,13 +169,11 @@ function App() {
             </a>
             <a
               className="button button--secondary"
-              href={contacts.telegramHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => trackGoal("click_telegram")}
+              href={contacts.phoneHref}
+              onClick={() => trackGoal("click_phone")}
             >
-              <Send size={20} />
-              Написать в Telegram
+              <Phone size={20} />
+              Позвонить
             </a>
           </div>
 
@@ -200,22 +226,11 @@ function App() {
 
           <div className="portrait-stack" aria-label="Фотографии Эльбруса">
             <figure className="portrait-card portrait-card--front">
-              <picture>
-                <source srcSet={toWebp(about.portraits[0])} type="image/webp" />
-                <img
-                  src={about.portraits[0]}
-                  alt="Эльбрус, местный водитель и проводник по Осетии"
-                  loading="lazy"
-                  decoding="async"
-                />
-              </picture>
+              <Photo image={about.portraits[0]} alt="Эльбрус, местный водитель и проводник по Осетии" />
               <figcaption>местный / Верхний Фиагдон</figcaption>
             </figure>
             <figure className="portrait-card portrait-card--back">
-              <picture>
-                <source srcSet={toWebp(about.portraits[1])} type="image/webp" />
-                <img src={about.portraits[1]} alt="Эльбрус в поездке по Северной Осетии" loading="lazy" decoding="async" />
-              </picture>
+              <Photo image={about.portraits[1]} alt="Эльбрус в поездке по Северной Осетии" />
               <figcaption>свой человек в Осетии</figcaption>
             </figure>
           </div>
@@ -250,10 +265,7 @@ function App() {
         <div className="trip-grid">
           {trips.map((trip) => (
             <article className="trip-card" key={trip.title}>
-              <picture>
-                <source srcSet={toWebp(trip.image)} type="image/webp" />
-                <img src={trip.image} alt={trip.imageAlt} loading="lazy" decoding="async" />
-              </picture>
+              <Photo image={trip.image} alt={trip.imageAlt} />
               <div className="trip-card__body">
                 <span className="note-label">{trip.note}</span>
                 <h3>{trip.title}</h3>
@@ -403,16 +415,6 @@ function App() {
               <MessageCircle size={20} />
               WhatsApp
             </a>
-            <a
-              className="button button--secondary"
-              href={contacts.telegramHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => trackGoal("click_telegram")}
-            >
-              <Send size={20} />
-              Telegram
-            </a>
             <a className="button button--ghost" href={contacts.phoneHref} onClick={() => trackGoal("click_phone")}>
               <Phone size={20} />
               {contacts.phoneLabel}
@@ -423,14 +425,14 @@ function App() {
           </p>
         </div>
 
-        <form className="request-form" onSubmit={handleSubmit}>
+        <form className="request-form" method="post" onSubmit={handleSubmit}>
           <label>
             Имя
-            <input name="name" type="text" placeholder="Как к вам обращаться" autoComplete="name" required />
+            <input name="name" type="text" placeholder="Как к вам обращаться" autoComplete="name" maxLength={120} required />
           </label>
           <label>
             Телефон или мессенджер
-            <input name="contact" type="text" placeholder="+7 ... / @telegram" required />
+            <input name="contact" type="text" placeholder="+7 ... / @telegram" maxLength={120} required />
           </label>
           <label>
             Дата поездки
@@ -442,20 +444,18 @@ function App() {
           </label>
           <label className="request-form__wide">
             Что хочется посмотреть
-            <textarea name="message" rows={5} placeholder="Горы, Фиагдон, Даргавс, рассвет, спокойный день..." />
+            <textarea name="message" rows={5} maxLength={1500} placeholder="Горы, Фиагдон, Даргавс, рассвет, спокойный день..." />
           </label>
-          <button className="button button--primary request-form__wide" type="submit" disabled={requestStatus === "sending"}>
+          <button className="button button--primary request-form__wide" type="submit" disabled={!ready || requestStatus === "sending"}>
             <ArrowRight size={20} />
-            {requestStatus === "sending" ? "Отправляем..." : "Отправить заявку"}
+            {requestStatus === "sending" ? "Отправляем..." : leadEndpoint ? "Отправить заявку" : "Открыть WhatsApp"}
           </button>
-          {requestMessage && (
-            <p
-              className={`form-success request-form__wide${requestStatus === "error" ? " form-success--error" : ""}`}
-              role="status"
-            >
-              {requestMessage}
-            </p>
-          )}
+          <p
+            className={`form-success request-form__wide${requestStatus === "error" ? " form-success--error" : ""}`}
+            role="status"
+          >
+            {requestMessage}
+          </p>
         </form>
       </section>
     </main>
