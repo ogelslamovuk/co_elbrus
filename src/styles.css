@@ -459,6 +459,7 @@ p {
 
 .portrait-card img {
   width: 100%;
+  height: auto;
   aspect-ratio: 3 / 4;
   object-fit: cover;
   border-radius: 6px;
@@ -578,6 +579,7 @@ p {
 
 .trip-card img {
   width: 100%;
+  height: auto;
   aspect-ratio: 16 / 10;
   object-fit: cover;
   filter: saturate(1.05) contrast(1.04);
